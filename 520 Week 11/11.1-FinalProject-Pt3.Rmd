@@ -1,0 +1,24 @@
+---
+title: "11.1-FinalProject-Pt3"
+author: "Brandon Sams"
+date: "2/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Discuss how you plan to uncover new information in the data that is not self-evident.**
+
+**What are different ways you could look at this data to answer the questions you want to answer?**
+
+**Do you plan to slice and dice the data in different ways, create new variables, or join separate data frames to create new summary information? Explain.**
+
+**How could you summarize your data to answer key questions?**
+
+**What types of plots and tables will help you to illustrate the findings to your questions? Ensure that all graph plots have axis titles, legend if necessary, scales are appropriate, appropriate geoms used, etc.).**
+
+**What do you not know how to do right now that you need to learn to answer your questions?**
+
+**Do you plan on incorporating any machine learning techniques to answer your research questions? Explain.**

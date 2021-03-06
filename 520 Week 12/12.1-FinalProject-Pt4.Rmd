@@ -1,0 +1,92 @@
+---
+title: "12.1-FinalProject-Pt4"
+author: "Brandon Sams"
+date: "2/27/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('plyr')
+library('ggplot2')
+```
+# Being a Dog Owner NYC
+
+## Overview
+
+There are few things that can be as emotionally rewarding as having a pet in your home. The sense of companionship and pride that one gets from having a pet is incredibly well recognized. According to an survey from the [American Pet Products Association](https://www.americanpetproducts.org/press_industrytrends.asp), 67% of US Households own a pet. They also estimate that of the roughly 84.9 million households that own a pet, 63.4 million own a dog. This is by far the most common pet to have in a household, but this should not be news to most.
+
+This research attempts to look at a case study when so many of those households are so very close together. Living in a big city like New York City brings additional advantages and drawbacks to everyday life. It makes sense that living with a dog in NYC would be much the same.
+
+Thus, the problem is that living with a dog in a big city such as NYC may be different from living with a dog in the rest of the country. This changes the calculus for whether or not a person who lives in NYC should own a dog or not. 
+
+## Data Sources
+
+This research project draws on two primary data sources. First, is a list of Dog License Registrations in NYC. This helps to establish a baseline for what the dog population looks like.
+
+```{r}
+RegisteredDogs <- read.csv("/Users/brandon.sams/Documents/RStudio/520 Week 12/DogRegistration.csv")
+head(RegisteredDogs)
+```
+
+The second data source is a list of Dog Bite incidents in NYC. I like this data source becuase it 
+
+```{r}
+DogBites <- read.csv("/Users/brandon.sams/Documents/RStudio/520 Week 12/DogBites.csv")
+head(DogBites)
+```
+A nonzero amount of cleaning has taken place in both data sets. There is additional cleaning that can be done, of course, but these data sets will give us a decent look into what it is like to own a dog in NYC.
+
+## Analysis
+
+We can look at the top ten most popular dog breeds, and one thing that I noticed was that 4 out of the top 5 were small dogs, weighing less than 15 pounds, on average. I anticipate that this has a lot to do with the size of the living conditions in NYC. Apartments are canonically quite small in the area, due to the cost per square foot of most apartments in the area. This likely has a lot to do with it.
+
+```{r}
+BreedCount <- count(RegisteredDogs,'BreedName')
+BreedCountSorted <- BreedCount[order(-BreedCount$freq),]
+# skip the first row, becasue the most common breed is "Unknown"
+TopTenBreeds <- head(tail(BreedCountSorted,-1),10)
+TopTenBreeds
+ggplot(TopTenBreeds,aes(x = reorder(BreedName,-freq), y = freq, fill = freq)) + geom_bar(stat = "identity") +theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+```
+
+We can also take a look at the dog bite data set, and see which dog breeds appear frequently in that list. I included the "UNKNOWN" this time, because I think it helps to show how frequently the number one breed appears in this list.
+
+```{r}
+BiteBreedCount <- count(DogBites,'Breed')
+BiteBreedCountSorted <- BiteBreedCount[order(-BiteBreedCount$freq),]
+BiteTopTenBreeds <- head(BiteBreedCountSorted,10)
+ggplot(BiteTopTenBreeds,aes(x = reorder(Breed,-freq), y = freq, fill = freq)) + geom_bar(stat = "identity") +theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5))
+```
+
+The largest bar, by far, is the "Pit Bull" breed. Of course, a breed will appear more frequently in this list if it is common to own in general. We can adjust for this by finding bites per number of times that breed has been registered. We will take a look at the top two most common breeds by bite, ignoring the "UNKNOWN" breed. That is, Pit Bull and Shih Tzu.
+
+```{r}
+breedSubset <- c("Pit Bull","Shih Zhu")
+breedLicensed <- c(18623,24661)
+breedBites <- c(1921,364)
+breedSubsetFrame <- data.frame(breedSubset,breedLicensed,breedBites)
+breedSubsetFrame$BitesPerLicense <-with(breedSubsetFrame, breedBites / breedLicensed)
+breedSubsetFrame
+
+ggplot(breedSubsetFrame,aes(x = breedSubset,y = BitesPerLicense)) + geom_bar(stat = "identity")
+```
+Even then, the Pit Bull breed still drastically outnumbers the next most common, the Shih Tzu, by an order of magnitude.
+
+I'm not sure what to do with this information exactly, but it is clear that this is statistically significant. This may be a part of the reason why some leases put Pit Bulls on the restricted breeds list, but I would hesitate to recommend that a person strays away from owning a Pit Bull in NYC, because it still may be the right option for some people.
+
+# Addressing the Problem
+
+I attempted to find some of the challenges that a dog owner living in New York City could be facing. Due to the data sets that I had available, I looked into dog  bites, and cross referenced this with records of what dogs exist in the city. This determined that one of the major problems that a person may encounter is breed restrictions on living spaces.
+
+# Implications
+
+This analysis implies that being a dog owner is still a very popular thing to do, even in a crowded city like New York. There were more than 300,000 dog registrations available in my data set, which indicates that there is still an opportunity for a good life to be had, even if you are a dog owner. Just keep in mind breed restrictions when finding a place to live.
+
+# Limitations
+
+There were several limitations in the analysis I performed. When being a dog owner in NYC, there are loads more things to consider than just the probability that a dog will bite. Some may even argue that that is such a rare event, that it may not even be worth considering. I would be inclined to agree, but I was limited by my skill set in R and the data sets I had available. I wanted to cross reference two data sets, and use them for comparative analysis, which I got the chance to do. But yes, more diversity of data sets would be beneficial.
+
+Another limitation is that I only cross compared two breeds, rather than the full list. A breed in one list is not necessarily the same as in the other, and further data cleaning would be required to ensure these two would play well together.

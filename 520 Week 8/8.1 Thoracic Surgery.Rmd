@@ -1,0 +1,49 @@
+---
+title: "8.1 Thoracic Surgery"
+author: "Brandon Sams"
+date: "2/1/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(foreign)
+```
+
+For this problem, you will be working with the [thoracic surgery data set](https://archive.ics.uci.edu/ml/datasets/Thoracic+Surgery+Data) from the University of California Irvine machine learning repository. This dataset contains information on life expectancy in lung cancer patients after surgery.
+
+The underlying [thoracic surgery data](https://archive.ics.uci.edu/ml/machine-learning-databases/00277/ThoraricSurgery.arff) is in ARFF format. This is a text-based format with information on each of the attributes. You can load this data using a package such as [foreign](https://cran.r-project.org/web/packages/foreign/index.html) or by cutting and pasting the data section into a CSV file.
+
+```{r}
+ts_data <- read.arff(url("https://archive.ics.uci.edu/ml/machine-learning-databases/00277/ThoraricSurgery.arff"))
+```
+
+## Assignment Instructions:
+
+**a. Fit a binary logistic regression model to the data set that predicts whether or not the patient survived for one year (the Risk1Y variable) after the surgery. Use the glm() function to perform the logistic regression. See [Generalized Linear Models](http://data.princeton.edu/R/glms.html) for an example. Include a summary using the summary() function in your results.**
+
+```{r}
+log_mod_ts <- glm(Risk1Yr ~ . , data = ts_data, family = binomial)
+summary(log_mod_ts)
+```
+
+
+**b. According to the summary, which variables had the greatest effect on the survival rate?**
+
+Based on the summary of the logistic regression model presented above, the variable "PRE9T" had the greatest effect on the survival rate. It has the highest z-value and the lowest p-value.
+
+**c. To compute the accuracy of your model, use the dataset to predict the outcome variable. The percent of correct predictions is the accuracy of your model. What is the accuracy of your model?**
+
+```{r}
+confusion_matrix <- table(ts_data$Risk1Yr, sign(predict.glm(log_mod_ts,newdata = ts_data)))
+confusion_matrix
+correct <- confusion_matrix["F","-1"] + confusion_matrix["T","1"]
+total <- nrow(ts_data)
+
+correct / total
+```
+The logistic regression model made a correct prediction about 83.6% of the time.
+
+

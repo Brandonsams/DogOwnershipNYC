@@ -1,0 +1,100 @@
+---
+title: "520-Wk3-AmericanCommunitySurvey"
+author: "Brandon Sams"
+date: "12/15/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Assignment Overview
+
+This is your second exercise with real data. This time, instead of a bank of test scores, we will use the 2014 American Community Survey. These data are maintained by the US Census Bureau and are designed to show how communities are changing.
+
+Through asking questions of a sample of the population, it produces national data on more than 35 categories of information, such as education, income, housing, and employment.
+
+# First, lets make a histogram!
+
+## Question 1
+What are the elements in your data (including the categories and data types)?
+
+```{r}
+library(readr)
+acs2014 <- read_csv("http://content.bellevue.edu/cst/dsc/520/id/resources/acs-14-1yr-s0201.csv")
+```
+
+## Question 2
+Please provide the output from the following functions: str(); nrow(); ncol()
+```{r}
+str(acs2014)
+nrow(acs2014)
+ncol(acs2014)
+```
+
+## Question 3
+Create a Histogram of the HSDegree variable using the ggplot2 package.
+  Set a bin size for the Histogram.
+  Include a Title and appropriate X/Y axis labels on your Histogram Plot.
+```{r}
+library(ggplot2)
+ggplot(acs2014,aes(x = HSDegree)) + geom_histogram(binwidth = 1) + xlab("High School Diploma (%)") + ylab("Frequency") + ggtitle("2014 American Community Survey: High School Diploma")
+```
+
+# Now that we have a Histogram
+
+##  1. Answer the following questions based on the Histogram produced:
+### a. Based on what you see in this histogram, is the data distribution unimodal?
+  Based on the histogram, I would say that the data distribution is, in fact, unimodal. There is one peak at 90%.
+  
+### b. Is it approximately symmetrical?
+  Based on the histogram, I would say that the data distribution is not symmetrical. The left side of the histogram has a far longer tail than the right side.
+  
+### c. Is it approximately bell-shaped?
+  Based on the histrogram, I would say that the data distribution is bell shaped. 
+  
+### d. Is it approximately normal?
+  The distribution could be approximated as a normal distribution, but would likely be better approximated as a different type of distribution, such as a gamma distribution.
+  
+### e. If not normal, is the distribution skewed? If so, in which direction?
+  The distribution is skewed to the right
+  
+### f. Include a normal curve to the Histogram that you plotted.
+```{r}
+ggplot(acs2014,aes(x = HSDegree)) + geom_histogram(binwidth = 1,aes(y=..density..))  + xlab("High School Diploma (%)") + ylab("Proportion") + ggtitle("2014 American Community Survey: High School Diploma")+ stat_function(fun = dnorm, args = list(mean = mean(acs2014$HSDegree), sd = sd(acs2014$HSDegree)))
+```
+  
+
+### g. Explain whether a normal distribution can accurately be used as a model for this data.
+  It does not appear to be an accurage model for this data. The height of the peak is far too low on the normal curve, and the mean is too far off from what was observed.
+
+# Probabiliy Plot
+
+## 1. Create a Probability Plot of the HSDegree variable.
+```{r}
+qqnorm(acs2014$HSDegree,main = "Probability Plot of HSDegree Variable")
+```
+
+
+## 2. Answer the following questions based on the Probability Plot:
+
+### a. Based on what you see in this probability plot, is the distribution approximately normal? Explain how you know.
+I do not think this distribution is approximately normal. All the probability plots I found online showed the diagonal line formed by the points in the probability plot to be very straight.
+
+### b. If not normal, is the distribution skewed? If so, in which direction? Explain how you know.
+The distribution is skewed to the right, as that is where the diagonal line starts to level off. More values are present above the mean than expected.
+
+## 1. Now that you have looked at this data visually for normality, you will now quantify normality with numbers using the stat.desc() function. Include a screen capture of the results produced.
+```{r}
+library(pastecs)
+stat.desc(acs2014$HSDegree)
+```
+
+
+## 2. In several sentences provide an explanation of the result produced for skew, kurtosis, and z-scores. In addition, explain how a change in the sample size may change your explanation?
+
+The result produced skewed to the high end of the range. With a mean centered at about 87% of people having a High School Diploma, this left very little room for a long tail to exist above the mean. This is different from the values below 87%, of which there is plenty of room for a long tail. This would be unchanged if additional data was collected. 
+
+As for the Kurtosis, the peak itslef was not very sharp. The standard deviation for this distribution was more than 5 percent, which appears to be a large value. If more data was collected, I do not expect the kurtosis value to change. 
+
+The z-score is a measure of how far, in standard deviations, is a point from the mean. Due to the nature of the z-score being a measure for a single value, it is difficult to say why the z-score is the way it is. I would wager a guess that it likely had lot to do with the distribution being skewed, and the case where the average z score on the left being different than an average z-score for a value to the right of the mean. If more data was collected, I do not expect the shape or location to change. Therefore, the z scores would likely be largely unchanged as well.

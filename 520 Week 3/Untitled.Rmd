@@ -1,0 +1,30 @@
+---
+title: "7.1 Housing Data"
+author: "Brandon Sams"
+date: "1/23/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+Work individually on this assignment. You are encouraged to collaborate on ideas and strategies pertinent to this assignment. Data for this assignment is focused on real estate transactions recorded from 1964 to 2016 and can be found in [Week 7 Housing.xlsx](http://content.bellevue.edu/cst/dsc/520/id/resources/week-7-housing.xlsx). Using your skills in statistical correlation, multiple regression and R programming, you are interested in the following variables:  Sale Price and several other possible predictors.
+
+
+	b	Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price, Bedrooms, and Bath Full Count as predictors.  
+	c	Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics?  Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?
+	d	Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?
+	e	Calculate the confidence intervals for the parameters in your model and explain what the results indicate.
+	f	Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.
+	g	Perform casewise diagnostics to identify outliers and/or influential cases, storing each functions output in a dataframe assigned to a unique variable name.
+	h	Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.
+	i	Use the appropriate function to show the sum of large residuals.
+	j	Which specific variables have large residuals (only cases that evaluate as TRUE)?
+	k	Investigate further by calculating the leverage, cooks distance, and covariance rations. Comment on all cases that are problematics.
+	l	Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.
+	m	Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.
+	n	Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.
+	o	Overall, is this regression model unbiased?  If an unbiased regression model, what does this tell us about the sample vs. the entire population model?

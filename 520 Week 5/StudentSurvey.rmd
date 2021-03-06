@@ -1,0 +1,92 @@
+---
+title: "5.1 Assignment - Student Survey"
+author: "Brandon Sams"
+date: "1/11/2020"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+As a data science intern with newly learned knowledge and skills in statistical correlation and R programming, you will analyze the results of a survey recently given to college students. You learn that the research question being investigated is: “Is there a significant relationship between the amount of time spent reading and the time spent watching television?” You are also interested if there are other significant relationships that can be discovered? The survey data is located in this [StudentSurvey.csv](http://content.bellevue.edu/cst/dsc/520/id/resources/student-survey.csv) file.
+
+```{r, include=FALSE}
+StudentSurvey <- read.csv(url("http://content.bellevue.edu/cst/dsc/520/id/resources/student-survey.csv"))
+
+str(StudentSurvey)
+```
+
+**1. Use R to calculate the covariance of the Survey variables and provide an explanation of why you would use this calculation and what the results indicate.**
+
+```{r}
+cov(StudentSurvey)
+```
+The covariance matrix is a measure of the strength of the correlation between two or more sets of random variates. In this case, there are just 4 sets of variates, and thus, there are 16 ways covariance values to observe. One may use this calculation to determine which variables are correlate with which, if the correlation is negative or positive, and the size of the correlation. These results indicate that TimeReading has a negative correlation with TimeTV, for example, although the size of the correlation is not necessarily significant at this point. 
+
+
+**2. Examine the Survey data variables. What measurement is being used for the variables? Explain what effect changing the measurement being used for the variables would have on the covariance calculation. Would this be a problem? Explain and provide a better alternative if needed.**
+```{r}
+head(StudentSurvey)
+```
+Based on the size of the values that are given for each of the variables, it appears that:
+
+    TimeReading is in hours
+    TimeTV is in minutes
+    Happiness is a scale from 0-100
+    Gender is an encoded value. 1=Male and 0=Female or vice versa.
+    
+Thus, it is worth converting TimeReading from hours to minutes, and seeing what the covariance is for the resulting dataframe.
+```{r}
+StudentSurvey$TimeReading <- StudentSurvey$TimeReading * 60
+cov(StudentSurvey)
+```
+It makes the resulting covariance for TimeTV and TimeReading be represented in minutes^2. It isnt direcly applicable in this dataset, but if the covariance of these two variables was compared to the covariance of, say, TimeReading and TimeOutdoors, it would make it easier to compare the two covariances. 
+
+**3. Choose the type of correlation test to perform, explain why you chose this test, and make a prediction if the test yields a positive or negative correlation?**
+
+This data set is relatively small, and a large amount of the data appears repeatedly in the dataset. Therefore, I would prefer to utilize Kendall's Tau as a correlation test. I predict a negative correlation to exist between the two, not specifically because of TV and Reading uniquely, but because as a person spends an increasing amount of time doing one activity, they have less time for other activities. Let's take a look.
+
+```{r}
+cor.test(StudentSurvey$TimeReading, StudentSurvey$TimeTV, alternative = "less", method = "kendall")
+```
+
+
+**4. Perform a correlation analysis of:**
+
+    - All variables
+    - A single correlation between two of the variables
+    - Repeat your correlation test in step 2 but set the confidence interval at 99%
+    - Describe what the calculations in the correlation matrix suggest about the relationship between the variables. Be specific with your explanation.**
+    
+```{r}
+cor(StudentSurvey)
+cor.test(StudentSurvey$TimeReading, StudentSurvey$TimeTV)
+cor.test(StudentSurvey$TimeReading, StudentSurvey$TimeTV,conf.level = 0.99)
+```
+This correlation analysis suggests that TimeReading is negatively correlated with TimeTV. It also suggests that TimeReading is negatively correlated with Happiness. This is different from the correlation between TimeTV and Happiness, which is a positive value. The correlation values for anything with gender are very close to zero, which indicates that gender does not play a role in in the amount of time a person spends reading, the time they spend watching tv, or how happy they are. 
+
+
+**5. Calculate the correlation coefficient and the coefficient of determination, describe what you conclude about the results.**
+
+```{r}
+cov(StudentSurvey$TimeReading,StudentSurvey$TimeTV)/(sd(StudentSurvey$TimeReading) * sd(StudentSurvey$TimeTV))
+
+summary(lm(TimeTV ~ TimeReading, data = StudentSurvey))$r.squared
+```
+The coefficient of determination is the square of the correlation coefficient. It seems like there is a particularly strong relationship that is present between the two variables. I anticipate that my earlier intuition is correct, in that as time is spent doing one activity it limits a person's ability to spend it doing a different activity.
+
+**6. Based on your analysis can you say that watching more TV caused students to read less? Explain.**
+
+It is very tempting to say that watching TV causes students to read less, based on the correlation values that were computed. However, correlation does not imply causation. And even if watching tv causes students to read less, the computed correlation values do not imply that. This analysis does not show if the correlation happended due to random chance, if there is a hidden common factor, or if reading causes students to watch less tv. Correlation tells us to what degree things appear to be related, but speaks not of causality.
+
+**7. Use TV Time and Happiness while controlling for Gender and perform a partial correlation. Explain how this changes your interpretation and explanation of the results.**
+
+```{r}
+library(ppcor)
+pcor.test(StudentSurvey$TimeTV, StudentSurvey$Happiness, StudentSurvey$Gender)
+```
+The estimate shows that, even when controlling for gender, time spent watching TV correlates in the positive direction strongly with happiness. Additionally, the p value being less than 0.05 shows that this finding is, in some sense, statistically significant. 

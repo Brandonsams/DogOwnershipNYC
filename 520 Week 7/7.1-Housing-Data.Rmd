@@ -1,0 +1,130 @@
+---
+title: "7.1 Housing Data"
+author: "Brandon Sams"
+date: "1/23/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("gdata")
+library("lm.beta")
+library("car")
+library("usdm")
+housing <- read.xls("http://content.bellevue.edu/cst/dsc/520/id/resources/week-7-housing.xlsx")
+```
+
+## Overview
+
+Work individually on this assignment. You are encouraged to collaborate on ideas and strategies pertinent to this assignment. Data for this assignment is focused on real estate transactions recorded from 1964 to 2016 and can be found in [Week 7 Housing.xlsx](http://content.bellevue.edu/cst/dsc/520/id/resources/week-7-housing.xlsx). Using your skills in statistical correlation, multiple regression and R programming, you are interested in the following variables:  Sale Price and several other possible predictors.
+
+## Exercises
+
+**b	Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price, Bedrooms, and Bath Full Count as predictors.**
+```{r}
+housingSubset1 <- housing[,c("Sale.Price","sq_ft_lot")]
+housingSubset2 <- housing[,c("Sale.Price","bedrooms","bath_full_count")]
+```
+
+**c	Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics?  Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?**
+```{r}
+lm_housingSubset1 <- lm(Sale.Price ~ sq_ft_lot, data = housingSubset1)
+lm_housingSubset2 <- lm(Sale.Price ~ bedrooms + bath_full_count, data = housingSubset2)
+summary(lm_housingSubset1)$r.squared
+summary(lm_housingSubset1)$adj.r.squared
+
+summary(lm_housingSubset2)$r.squared
+summary(lm_housingSubset2)$adj.r.squared
+```
+The overall model has a higher correlation value when there are additional predictors. The overall model exhibits a fairly low R Squared value in either case, even if the R Squared value is adjusted. The inclusion of additional predictors increased the R Squared value by a factor of about 7. This indicates that the additional predictors do help to explain any large variations found in the Sale Price.
+	
+**d	Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?**
+```{r}
+lm.beta(lm_housingSubset1)
+lm.beta(lm_housingSubset2)
+```
+These values indicate that the square footage is about as strong of an influence on the Sale Price of a home as the number of bedrooms is. It also indicates that the count of the bathrooms is about twice as important when calculating the expected Sale Price of a house as the number of bedrooms and consequently, about twice as important as the square footage.
+
+**e	Calculate the confidence intervals for the parameters in your model and explain what the results indicate.**
+```{r}
+confint(lm_housingSubset1)
+confint(lm_housingSubset2)
+```
+These confidence values indicate where we would expect 2.5% and 97.5% of our data to fall, respectively. 
+	
+**f	Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.**
+```{r}
+anova(lm_housingSubset1,lm_housingSubset2)
+```
+It appears that, based on the very low P value, that there is a significant improvement in this case when using the multivariate model.
+	
+**g	Perform casewise diagnostics to identify outliers and/or influential cases, storing each functions output in a dataframe assigned to a unique variable name.**
+```{r}
+outlier_housingSubset1 <- outlierTest(lm_housingSubset1)
+outlier_housingSubset2 <- outlierTest(lm_housingSubset2)
+```
+
+**h	Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.**
+```{r}
+rstand1 <- rstandard(lm_housingSubset1)
+large1 <- subset(rstand1,abs(rstand1)>2)
+
+rstand2 <- rstandard(lm_housingSubset2)
+large2 <- subset(rstand2,abs(rstand2)>2)
+```
+
+	
+**i	Use the appropriate function to show the sum of large residuals.**
+```{r}
+sum(large1)
+sum(large2)
+```
+
+	
+**j	Which specific variables have large residuals (only cases that evaluate as TRUE)?**
+```{r}
+large1
+large2
+```
+
+	
+**k	Investigate further by calculating the leverage, cooks distance, and covariance rations. Comment on all cases that are problematics.**
+```{r}
+hatvalues(lm_housingSubset1)
+hatvalues(lm_housingSubset2)
+cooks.distance(lm_housingSubset1)
+cooks.distance(lm_housingSubset2)
+cov(housingSubset1)
+cov(housingSubset2)
+
+```
+
+	
+	
+**l	Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.**
+```{r}
+chisq.test(housingSubset1)
+chisq.test(housingSubset2)
+```
+
+	
+**m	Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.**
+```{r}
+vif(housingSubset1)
+vif(housingSubset2)
+```
+Because the resulting VIF values are less than 4, it is safe to assume no multicollinearity.
+	
+**n	Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.**
+```{r}
+plot(housingSubset1$sq_ft_lot,housingSubset1$Sale.Price)
+hist(housingSubset1$Sale.Price)
+```
+The plot shows a significant clustering, with several outliers. The price of housing is skewed to the left.
+
+	
+**o	Overall, is this regression model unbiased?  If an unbiased regression model, what does this tell us about the sample vs. the entire population model?**
+I have not seen any significant evidence that the model is biased. This tells us that the sample is likely representative of the population as a whole.
+	
